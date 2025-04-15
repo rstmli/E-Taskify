@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-otp-table
+      author: Huseyn Rustemli
+      changes:
+        - createTable:
+            tableName: otp
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: otp_code
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expire_time
+                  type: TIMESTAMP
+              - column:
+                  name: block_time
+                  type: TIMESTAMP

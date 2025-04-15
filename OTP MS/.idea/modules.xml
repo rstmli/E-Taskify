@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/OTP MS.iml" filepath="$PROJECT_DIR$/.idea/OTP MS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/otp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/otp.main.iml" />
     </modules>
   </component>
 </project>
