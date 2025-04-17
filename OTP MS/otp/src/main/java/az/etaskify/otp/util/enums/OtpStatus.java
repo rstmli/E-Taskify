@@ -1,5 +1,5 @@
 package az.etaskify.otp.util.enums;
 
 public enum OtpStatus {
-    PENDING,BLOCK,ACCEPT
+    PENDING,SUCCESS,BLOCK,FAIL
 }

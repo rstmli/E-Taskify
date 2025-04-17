@@ -1,3 +1,7 @@
 databaseChangeLog:
   - include:
       file: db/changelog/otp/001_OtpCreatedTable.yml
+  - include:
+      file: db/changelog/otp/002_OtpTableAddColumn.yml
+  - include:
+      file: db/changelog/otp/003_ColumnRename.yml

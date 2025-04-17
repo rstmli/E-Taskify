@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002_AddColumn
+      author: Huseyn Rustemli
+      changes:
+        - addColumn:
+            tableName: otp
+            columns:
+              - column:
+                  name: emailCount
+                  type: int
+              - column:
+                  name: verifyCount
+                  type: int

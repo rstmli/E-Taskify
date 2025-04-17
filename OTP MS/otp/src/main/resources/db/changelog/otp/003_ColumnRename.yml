@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: rename-email-and-verify-columns
+      author: Huseyn Rustemli
+      changes:
+        - renameColumn:
+            tableName: otp
+            oldColumnName: emailCount
+            newColumnName: email_count
+            columnDataType: INTEGER
+        - renameColumn:
+            tableName: otp
+            oldColumnName: verifyCount
+            newColumnName: verify_count
+            columnDataType: INTEGER

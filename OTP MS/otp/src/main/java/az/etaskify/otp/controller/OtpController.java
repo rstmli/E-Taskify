@@ -1,5 +1,7 @@
 package az.etaskify.otp.controller;
+import az.etaskify.otp.dto.SendOtpResponseDto;
 import az.etaskify.otp.service.OtpSendService;
+import az.etaskify.otp.service.OtpVerifyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,15 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OtpController {
 
-    private final OtpSendService otpService;
+    private final OtpSendService otpSendService;
+    private final OtpVerifyService otpVerifyService;
 
     @PostMapping("/send")
-    public ResponseEntity<String> sendOtp(@RequestParam String email) {
-        return otpService.sendOtp(email);
+    public SendOtpResponseDto sendOtp(@RequestParam String email) {
+        return otpSendService.sendOtp(email);
     }
 
     @PostMapping("/verify")
     public ResponseEntity<String> verifyOtp(@RequestParam String email, @RequestParam String otp) {
-        return null;
+        return otpVerifyService.emailVerify(email,otp);
     }
 }
