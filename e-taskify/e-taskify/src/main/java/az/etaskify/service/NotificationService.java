@@ -6,11 +6,8 @@ import az.etaskify.dao.repository.NotificationRepository;
 import az.etaskify.dto.UserDto;
 import az.etaskify.util.enums.NotificationType;
 import feign.FeignException;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.annotation.Propagation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
@@ -21,8 +18,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final AuthClient authServiceClient;
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+
     public void sendInviteNotificationAsync(Long invitedUserId, Long inviterUserId, String organizationName) {
         log.info("Attempting to send invite notification. Invited User ID: {}, Inviter User ID: {}, Org Name: {}",
                 invitedUserId, inviterUserId, organizationName);
@@ -48,8 +44,7 @@ public class NotificationService {
             log.error("Failed to save invite notification for user ID: {}. Error: {}", invitedUserId, e.getMessage(), e);
         }
     }
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Async
+
     public void sendInviteAcceptedNotification(Long inviterUserId, Long acceptingUserId, String organizationName) {
         log.info("Attempting to send invite accepted notification. Inviter User ID: {}, Accepting User ID: {}, Org Name: {}",
                 inviterUserId, acceptingUserId, organizationName);
@@ -75,8 +70,7 @@ public class NotificationService {
             log.error("Failed to save invite accepted notification for user ID: {}. Error: {}", inviterUserId, e.getMessage(), e);
         }
     }
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Async
+
     public void sendInviteRejectedNotification(Long inviterUserId, Long rejectingUserId, String organizationName) {
         log.info("Attempting to send invite rejected notification. Inviter User ID: {}, Rejecting User ID: {}, Org Name: {}",
                 inviterUserId, rejectingUserId, organizationName);
@@ -103,8 +97,6 @@ public class NotificationService {
         }
     }
 
-
-
     private String fetchUsername(Long userId) {
         try {
             log.debug("Fetching username for user ID: {}", userId);
@@ -124,6 +116,8 @@ public class NotificationService {
             return "Bir kullanıcı";
         }
     }
+
+
 
 
 }

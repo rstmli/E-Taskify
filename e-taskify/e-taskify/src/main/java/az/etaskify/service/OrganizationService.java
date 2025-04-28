@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import javax.naming.ServiceUnavailableException;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -38,6 +37,7 @@ public class OrganizationService {
     private final InviteRepository inviteRepository;
     private final AuthClient authServiceClient;
     private final NotificationService notificationService;
+
     @Transactional
     public ResponseEntity<String> createOrganization (OrganizationCreateRequest dto, String authHeader) {
         try{
@@ -59,7 +59,7 @@ public class OrganizationService {
     @Transactional
     public InviteResponseDto inviteUserToOrganization(Long organizationId, InviteUserRequestDto requestDto, String authHeader) throws ServiceUnavailableException {
         var userId = authClient.validateToken(authHeader).getBody();
-        log.info("Attempting to invite user '{}' to organization ID: {} by user ID: {}", requestDto.getUsername(), organizationId, userId);
+        log.info("Attempting to invite user '{}' to organization ID: {} by user ID: {}", requestDto.username(), organizationId, userId);
 
         OrganizationEntity organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> {
@@ -79,22 +79,22 @@ public class OrganizationService {
             log.warn("User ID: {} is not authorized to invite members to organization ID: {}", userId, organizationId);
             throw new NotAuthorizedToInviteException("User is not authorized to send invitations for this organization.");
         }
-        log.debug("Inviter ID: {} is authorized (Owner: {}) for organization ID: {}", userId,isOwner,organizationId);
+        log.debug("Inviter ID: {} is authorized (Owner: {}) for organization ID: {}", userId, isOwner,organizationId);
 
 
         UserDto invitedUserDto;
         try {
-            log.debug("Calling Auth Service to find user by username: {}", requestDto.getUsername());
-            invitedUserDto = authServiceClient.findUserByUsername(requestDto.getUsername());
+            log.debug("Calling Auth Service to find user by username: {}", requestDto.username());
+            invitedUserDto = authServiceClient.findUserByUsername(requestDto.username());
             if (invitedUserDto == null || invitedUserDto.getId() == null) {
-                throw new InvitedUserNotFoundException("Invited user not found: " + requestDto.getUsername());
+                throw new InvitedUserNotFoundException("Invited user not found: " + requestDto.username());
             }
-            log.info("Found invited user '{}' with ID: {}", requestDto.getUsername(), invitedUserDto.getId());
+            log.info("Found invited user '{}' with ID: {}", requestDto.username(), invitedUserDto.getId());
         } catch (FeignException.NotFound e) {
-            log.error("Invited user not found via Auth Service. Username: {}", requestDto.getUsername(), e);
-            throw new InvitedUserNotFoundException("Invited user not found: " + requestDto.getUsername());
+            log.error("Invited user not found via Auth Service. Username: {}", requestDto.username(), e);
+            throw new InvitedUserNotFoundException("Invited user not found: " + requestDto.username());
         } catch (Exception e) {
-            log.error("Error calling Auth Service for username: {}. Error: {}", requestDto.getUsername(), e.getMessage(), e);
+            log.error("Error calling Auth Service for username: {}. Error: {}", requestDto.username(), e.getMessage(), e);
             throw new ServiceUnavailableException("Could not reach authentication service to verify user.");
         }
 
@@ -107,11 +107,11 @@ public class OrganizationService {
 
         if (userOrganizationRepository.existsByUserIdAndOrganizationId(invitedUserId, organizationId)) {
             log.warn("User ID: {} is already a member of organization ID: {}", invitedUserId, organizationId);
-            throw new UserAlreadyMemberException("User '" + requestDto.getUsername() + "' is already a member of this organization.");
+            throw new UserAlreadyMemberException("User '" + requestDto.username() + "' is already a member of this organization.");
         }
         if (inviteRepository.existsByOrganizationIdAndInvitedUserIdAndStatus(organizationId, invitedUserId, InviteStatus.PENDING)) {
             log.warn("A pending invitation already exists for user ID: {} in organization ID: {}", invitedUserId, organizationId);
-            throw new InviteAlreadyPendingException("An invitation is already pending for user '" + requestDto.getUsername() + "'.");
+            throw new InviteAlreadyPendingException("An invitation is already pending for user '" + requestDto.username() + "'.");
         }
 
         InviteEntity newInvite = InviteEntity.builder()
@@ -130,7 +130,7 @@ public class OrganizationService {
          } catch (Exception e) {
              log.error("Failed to send invite notification to user ID: {}. Error: {}", invitedUserId, e.getMessage(), e);
          }
-        return mapToInviteResponseDto(savedInvite);
+        return organizationMapper.mapToInviteResponseDto(savedInvite);
     }
 
 
@@ -140,9 +140,7 @@ public class OrganizationService {
         log.info("Fetching pending invites for user ID: {}", userId);
         List<InviteEntity> pendingInvites = inviteRepository.findByInvitedUserIdAndStatusOrderByCreatedAtDesc(userId, InviteStatus.PENDING);
 
-        return pendingInvites.stream()
-                .map(this::mapToInviteResponseDto)
-                .collect(Collectors.toList());
+        return organizationMapper.entityToDtoList(pendingInvites);
     }
 
 
@@ -198,7 +196,7 @@ public class OrganizationService {
               log.error("Failed to send invite accepted notification to inviter ID: {}. Error: {}", invite.getInviterUserId(), e.getMessage(), e);
          }
 
-        return mapToInviteResponseDto(updatedInvite);
+        return organizationMapper.mapToInviteResponseDto(updatedInvite);
     }
 
     @Transactional
@@ -234,21 +232,9 @@ public class OrganizationService {
               log.error("Failed to send invite rejected notification to inviter ID: {}. Error: {}", invite.getInviterUserId(), e.getMessage(), e);
          }
 
-        return mapToInviteResponseDto(updatedInvite);
+        return organizationMapper.mapToInviteResponseDto(updatedInvite);
     }
 
 
-    private InviteResponseDto mapToInviteResponseDto(InviteEntity entity) {
-        if (entity == null) return null;
-        return InviteResponseDto.builder()
-                .id(entity.getId())
-                .organizationId(entity.getOrganization().getId())
-                .organizationName(entity.getOrganization().getName())
-                .invitedUserId(entity.getInvitedUserId())
-                .inviterUserId(entity.getInviterUserId())
-                .status(entity.getStatus())
-                .createdAt(entity.getCreatedAt())
-                .build();
-    }
 
 }

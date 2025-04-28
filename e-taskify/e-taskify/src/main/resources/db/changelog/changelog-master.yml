@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/tables/002_update-table-column-update-and-add.yml
   - include:
       file: db/changelog/tables/003_add-invite-table-new-column.yml
+  - include:
+      file: db/changelog/tables/004_notification-table-add-column.yml

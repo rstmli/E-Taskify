@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-notification-type-column
+      author: Huseyn Rustemli
+      changes:
+        - addColumn:
+            tableName: notification
+            columns:
+              - column:
+                  name: type
+                  type: VARCHAR(255)
