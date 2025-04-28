@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-status-column-to-invite
+      author: Huseyn Rustemli
+      changes:
+        - addColumn:
+            tableName: invite
+            columns:
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                  defaultValue: 'PENDING'

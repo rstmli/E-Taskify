@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/tables/AddAllTable.yml
+  - include:
+      file: db/changelog/tables/002_update-table-column-update-and-add.yml
+  - include:
+      file: db/changelog/tables/003_add-invite-table-new-column.yml

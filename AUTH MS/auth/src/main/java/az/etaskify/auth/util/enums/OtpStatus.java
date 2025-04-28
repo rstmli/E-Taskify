@@ -1,4 +1,4 @@
-package az.etaskify.otp.util.enums;
+package az.etaskify.auth.util.enums;
 
 public enum OtpStatus {
     PENDING,BLOCK,FAIL
