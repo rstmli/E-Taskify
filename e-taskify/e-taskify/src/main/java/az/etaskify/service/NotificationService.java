@@ -25,7 +25,7 @@ public class NotificationService {
 
         String inviterUsername = fetchUsername(inviterUserId);
 
-        String message = String.format("'%s' sizi '%s' organizasyonuna davet etti.",
+        String message = String.format("'%s' sizi '%s' təşkilatına dəvət etdi.",
                 inviterUsername,
                 organizationName);
 
@@ -51,7 +51,7 @@ public class NotificationService {
 
         String acceptingUsername = fetchUsername(acceptingUserId);
 
-        String message = String.format("'%s' sizin '%s' organizasyonuna gönderdiğiniz daveti kabul etti.",
+        String message = String.format("'%s' sizin '%s' təşkilatına göndərdiyiniz dəvəti qəbul etdi.",
                 acceptingUsername,
                 organizationName);
 
@@ -77,7 +77,7 @@ public class NotificationService {
 
         String rejectingUsername = fetchUsername(rejectingUserId);
 
-        String message = String.format("'%s' sizin '%s' organizasyonuna gönderdiğiniz daveti reddetti.",
+        String message = String.format("'%s' sizin '%s' təşkilatına göndərdiyiniz dəvəti rədd etdi.",
                 rejectingUsername,
                 organizationName);
 
@@ -86,7 +86,7 @@ public class NotificationService {
                     .userId(inviterUserId)
                     .message(message)
                     .isRead(false)
-                    .type(NotificationType.INVITE_RECEIVED)
+                    .type(NotificationType.INVITE_REJECTED)
                     .build();
 
             notificationRepository.save(notification);
@@ -97,6 +97,79 @@ public class NotificationService {
         }
     }
 
+    public void sendJoinRequestReceivedNotification(Long ownerUserId, Long requestingUserId, String organizationName) {
+        log.info("Attempting to send join request received notification. Owner User ID: {}, Requesting User ID: {}, Org Name: {}",
+                ownerUserId, requestingUserId, organizationName);
+
+        String requestingUsername = fetchUsername(requestingUserId);
+
+        String message = String.format("'%s' adlı istifadəçi '%s' təşkilatınıza qoşulmaq üçün sorğu göndərdi.",
+                requestingUsername,
+                organizationName);
+
+        try {
+            NotificationEntity notification = NotificationEntity.builder()
+                    .userId(ownerUserId)
+                    .message(message)
+                    .isRead(false)
+                    .type(NotificationType.JOIN_REQUEST_RECEIVED)
+                    .build();
+
+            notificationRepository.save(notification);
+            log.info("Successfully saved join request received notification for owner user ID: {}", ownerUserId);
+
+        } catch (Exception e) {
+            log.error("Failed to save join request received notification for owner user ID: {}. Error: {}", ownerUserId, e.getMessage(), e);
+        }
+    }
+
+    public void sendJoinRequestApprovedNotification(Long requestingUserId, String organizationName) {
+        log.info("Attempting to send join request approved notification. Requesting User ID: {}, Org Name: {}",
+                requestingUserId, organizationName);
+
+        String message = String.format("'%s' təşkilatına qoşulma sorğunuz təsdiqləndi.",
+                organizationName);
+
+        try {
+            NotificationEntity notification = NotificationEntity.builder()
+                    .userId(requestingUserId)
+                    .message(message)
+                    .isRead(false)
+                    .type(NotificationType.JOIN_REQUEST_APPROVED)
+                    .build();
+
+            notificationRepository.save(notification);
+            log.info("Successfully saved join request approved notification for user ID: {}", requestingUserId);
+
+        } catch (Exception e) {
+            log.error("Failed to save join request approved notification for user ID: {}. Error: {}", requestingUserId, e.getMessage(), e);
+        }
+    }
+
+    public void sendJoinRequestRejectedNotification(Long requestingUserId, String organizationName) {
+        log.info("Attempting to send join request rejected notification. Requesting User ID: {}, Org Name: {}",
+                requestingUserId, organizationName);
+
+        String message = String.format("'%s' təşkilatına qoşulma sorğunuz rədd edildi.",
+                organizationName);
+
+        try {
+            NotificationEntity notification = NotificationEntity.builder()
+                    .userId(requestingUserId)
+                    .message(message)
+                    .isRead(false)
+                    .type(NotificationType.JOIN_REQUEST_REJECTED)
+                    .build();
+
+            notificationRepository.save(notification);
+            log.info("Successfully saved join request rejected notification for user ID: {}", requestingUserId);
+
+        } catch (Exception e) {
+            log.error("Failed to save join request rejected notification for user ID: {}. Error: {}", requestingUserId, e.getMessage(), e);
+        }
+    }
+
+
     private String fetchUsername(Long userId) {
         try {
             log.debug("Fetching username for user ID: {}", userId);
@@ -106,14 +179,14 @@ public class NotificationService {
                 return userDto.getUsername();
             } else {
                 log.warn("User DTO or username was null for user ID: {}", userId);
-                return "Bir kullanıcı";
+                return "Bir istifadəçi";
             }
         } catch (FeignException e) {
             log.error("Failed to fetch username for user ID: {} from Auth Service. Status: {}, Error: {}", userId, e.status(), e.getMessage());
-            return "Bir kullanıcı";
+            return "Bir istifadəçi";
         } catch (Exception e) {
             log.error("An unexpected error occurred while fetching username for user ID: {}. Error: {}", userId, e.getMessage(), e);
-            return "Bir kullanıcı";
+            return "Bir istifadəçi";
         }
     }
 

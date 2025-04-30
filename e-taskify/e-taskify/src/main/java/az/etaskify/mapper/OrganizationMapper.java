@@ -4,6 +4,7 @@ import az.etaskify.dao.entity.InviteEntity;
 import az.etaskify.dao.entity.OrganizationEntity;
 import az.etaskify.dto.InviteResponseDto;
 import az.etaskify.dto.OrganizationCreateRequest;
+import az.etaskify.dto.PublicOrganizationDto;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -55,5 +56,20 @@ public class OrganizationMapper {
         }
         return dtos;
     }
+
+    public List<PublicOrganizationDto> mapToPublicOrganizationDtoList(List<OrganizationEntity> entities){
+        List<PublicOrganizationDto> dtos = new ArrayList<>();
+        for(OrganizationEntity e :entities){
+            dtos.add(
+                    PublicOrganizationDto.builder()
+                            .id(e.getId())
+                            .name(e.getName())
+                            .build()
+            );
+
+        }
+        return dtos;
+    }
+
 
 }
