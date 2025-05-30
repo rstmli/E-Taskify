@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 @Builder
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
+
+
 public class TaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +28,7 @@ public class TaskEntity {
     String description;
     @Column(name = "user_id",nullable = false)
     Long createdBy;
+    @Enumerated(EnumType.STRING)
     VisibilityStatus visibility;
     @CreationTimestamp
     LocalDateTime createdAt;

@@ -70,7 +70,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                         .isActive(false)
                         .build();
 
-        var savedUser =repository.save(newUser);
+        var savedUser = repository.save(newUser);
 
         return savedUser.getUsername();
 

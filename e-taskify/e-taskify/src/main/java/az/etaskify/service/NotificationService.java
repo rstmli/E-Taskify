@@ -48,13 +48,10 @@ public class NotificationService {
     public void sendInviteAcceptedNotification(Long inviterUserId, Long acceptingUserId, String organizationName) {
         log.info("Attempting to send invite accepted notification. Inviter User ID: {}, Accepting User ID: {}, Org Name: {}",
                 inviterUserId, acceptingUserId, organizationName);
-
         String acceptingUsername = fetchUsername(acceptingUserId);
-
         String message = String.format("'%s' sizin '%s' təşkilatına göndərdiyiniz dəvəti qəbul etdi.",
                 acceptingUsername,
                 organizationName);
-
         try {
             NotificationEntity notification = NotificationEntity.builder()
                     .userId(inviterUserId)

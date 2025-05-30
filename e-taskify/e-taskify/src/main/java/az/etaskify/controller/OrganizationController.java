@@ -47,7 +47,6 @@ public class OrganizationController {
     public JoinRequestDto requestToJoinOrganization(@PathVariable("id") Long organizationId,@RequestHeader("Authorization") String authHeader) {
         return organizationService.requestToJoinOrganization(organizationId,authHeader);
     }
-
     @GetMapping("/invite-join/{id}")
     public List<JoinRequestDto> listPendingJoinRequests(@PathVariable("id") Long organizationId,@RequestHeader("Authorization") String authHeader) {
         return organizationService.listPendingJoinRequests(organizationId,authHeader);

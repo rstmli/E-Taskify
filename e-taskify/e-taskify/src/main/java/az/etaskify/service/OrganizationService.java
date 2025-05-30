@@ -41,7 +41,6 @@ public class OrganizationService {
     private final JoinRequestRepository joinRequestRepository;
     private final JoinRequestMapper joinRequestMapper;
 
-    @Transactional
     public ResponseEntity<String> createOrganization(OrganizationCreateRequest dto, String authHeader) {
         try {
             var userId = authClient.validateToken(authHeader).getBody();
@@ -75,43 +74,33 @@ public class OrganizationService {
         boolean isOwner = organization.getOwnerId().equals(userId);
 
         if (!isOwner) {
-            log.warn("User ID: {} is not authorized to invite members to organization ID: {}", userId, organizationId);
             throw new NotAuthorizedToInviteException("User is not authorized to send invitations for this organization.");
         }
-        log.debug("Inviter ID: {} is authorized (Owner: {}) for organization ID: {}", userId, isOwner, organizationId);
 
         UserDto invitedUserDto;
         try {
-            log.debug("Calling Auth Service to find user by username: {}", requestDto.username());
             invitedUserDto = authServiceClient.findUserByUsername(requestDto.username());
             if (invitedUserDto == null || invitedUserDto.getId() == null) {
                 throw new InvitedUserNotFoundException("Invited user not found: " + requestDto.username());
             }
-            log.info("Found invited user '{}' with ID: {}", requestDto.username(), invitedUserDto.getId());
         } catch (FeignException.NotFound e) {
-            log.error("Invited user not found via Auth Service. Username: {}", requestDto.username(), e);
             throw new InvitedUserNotFoundException("Invited user not found: " + requestDto.username());
         } catch (Exception e) {
-            log.error("Error calling Auth Service for username: {}. Error: {}", requestDto.username(), e.getMessage(), e);
             throw new ServiceUnavailableException("Could not reach authentication service to verify user.");
         }
 
         Long invitedUserId = invitedUserDto.getId();
 
         if (userId.equals(invitedUserId)) {
-            log.warn("User ID: {} attempted to invite themselves to organization ID: {}", userId, organizationId);
             throw new CannotInviteSelfException("You cannot invite yourself to the organization.");
         }
 
         if (userOrganizationRepository.existsByUserIdAndOrganizationId(invitedUserId, organizationId)) {
-            log.warn("User ID: {} is already a member of organization ID: {}", invitedUserId, organizationId);
             throw new UserAlreadyMemberException("User '" + requestDto.username() + "' is already a member of this " +
                     "organization.");
         }
         if (inviteRepository.existsByOrganizationIdAndInvitedUserIdAndStatus(organizationId, invitedUserId,
                 InviteStatus.PENDING)) {
-            log.warn("A pending invitation already exists for user ID: {} in organization ID: {}", invitedUserId,
-                    organizationId);
             throw new InviteAlreadyPendingException("An invitation is already pending for user '" +
                     requestDto.username() + "'.");
         }
@@ -124,6 +113,7 @@ public class OrganizationService {
                 .build();
 
         InviteEntity savedInvite = inviteRepository.save(newInvite);
+
         log.info("Successfully created invite ID: {} for user ID: {} to organization ID: {}", savedInvite.getId(),
                 invitedUserId, organizationId);
 

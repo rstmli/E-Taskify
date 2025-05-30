@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
+
 public class OrganizationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
